@@ -18,15 +18,23 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
 
-        User admin = new User();
+        if (userService.findByEmail("admin@test.com") == null) {
 
-        admin.setFullName("System Administrator");
-        admin.setEmail("admin@test.com");
-        admin.setPassword("admin123");
-        admin.setRole(Role.ADMIN);
+            User admin = new User();
 
-        userService.saveUser(admin);
+            admin.setFullName("System Administrator");
+            admin.setEmail("admin@test.com");
+            admin.setPassword("admin123");
+            admin.setRole(Role.ADMIN);
 
-        System.out.println("Admin user created!");
+            userService.saveUser(admin);
+
+            System.out.println("Admin user created!");
+
+        } else {
+
+            System.out.println("Admin user already exists!");
+
+        }
     }
 }
