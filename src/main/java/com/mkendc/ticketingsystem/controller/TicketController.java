@@ -7,9 +7,11 @@ import com.mkendc.ticketingsystem.service.TicketService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.mkendc.ticketingsystem.mapper.TicketMapper;
+
 
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -33,14 +35,7 @@ public class TicketController {
 
         Ticket savedTicket = ticketService.createTicket(ticket);
 
-        TicketResponse response = new TicketResponse(
-                savedTicket.getId(),
-                savedTicket.getTitle(),
-                savedTicket.getDescription(),
-                savedTicket.getStatus(),
-                savedTicket.getPriority(),
-                savedTicket.getCreatedAt()
-        );
+        TicketResponse response = TicketMapper.toResponse(savedTicket);
 
         return ResponseEntity.ok(response);
     }
@@ -50,31 +45,17 @@ public class TicketController {
 
         List<TicketResponse> tickets = ticketService.getAllTickets()
                 .stream()
-                .map(ticket -> new TicketResponse(
-                        ticket.getId(),
-                        ticket.getTitle(),
-                        ticket.getDescription(),
-                        ticket.getStatus(),
-                        ticket.getPriority(),
-                        ticket.getCreatedAt()
-                ))
-                .collect(Collectors.toList());
+                .map(TicketMapper::toResponse)
+                .toList();
 
         return ResponseEntity.ok(tickets);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id) {
+    public ResponseEntity<TicketResponse> getTicketById(@PathVariable Long id)  {
 
         return ticketService.getTicketById(id)
-                .map(ticket -> new TicketResponse(
-                        ticket.getId(),
-                        ticket.getTitle(),
-                        ticket.getDescription(),
-                        ticket.getStatus(),
-                        ticket.getPriority(),
-                        ticket.getCreatedAt()
-                ))
+                .map(TicketMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -85,14 +66,7 @@ public class TicketController {
             @Valid @RequestBody CreateTicketRequest request) {
 
         return ticketService.updateTicket(id, request)
-                .map(ticket -> new TicketResponse(
-                        ticket.getId(),
-                        ticket.getTitle(),
-                        ticket.getDescription(),
-                        ticket.getStatus(),
-                        ticket.getPriority(),
-                        ticket.getCreatedAt()
-                ))
+                .map(TicketMapper::toResponse)
                 .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
